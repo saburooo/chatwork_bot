@@ -4,8 +4,35 @@ import requests
 import os
 from pprint import pprint
 import json
+import re
 
 app = Flask(__name__)
+
+
+class MessageAnalize:
+    def __init__(self, json_file):
+        """
+        このままクラスが増えすぎるのもまずいと思った。
+        このクラスでメッセージとその他諸々を解析する。
+        """
+        self.message_id : str = json_file["message_id"]
+        self.body : str = json_file["body"]
+        self.name : str = json_file["account"]["name"]
+        self.q_and_a = re.compile('質問|在宅(で|も|は).*?|これは')
+    
+    def test(self):
+        """
+        テストするためのメソッド
+        """
+        pass
+
+    def ngword(self):
+        """
+        NGワードが入っているかどうか確認する。
+        """
+        pass
+        
+
 
 class ChatWork:
     def __init__(self):
@@ -25,15 +52,14 @@ class ChatWork:
         """
         req = requests.get(self.message_url, headers=self.api_key)
         try:
-            json_file = req.json()
+            json_file_list = req.json()
         except:
-            json_file = {}
-        if json_file != {}:
-            for j in json_file:
-                self.message_analize(j["body"])
-            pprint(json_file[-1])
+            json_file_list = {}
+        if json_file_list != {}:
+            pprint(json_file_list[-1])
         else:
             print("ゲットできず")
+        return json_file_list
     
     def get_keys(self):
         """
@@ -51,13 +77,18 @@ class ChatWork:
             print("ローカルでは取得できなかった")
         return key_and_id
 
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    pass
+    chat = ChatWork()
+    for c in chat.chat_get():
+        m = MessageAnalize(c)
+
 
 if __name__ == "__main__":
     chat = ChatWork()
-    chat.chat_get()
+    for c in chat.chat_get():
+        m = MessageAnalize(c)
     chat.chat_post("ピッコロ大魔王")
     #app.debug=True
     #app.run()

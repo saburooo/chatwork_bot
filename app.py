@@ -24,8 +24,16 @@ class ChatWork:
         json_fileで取得したのを頼りにテキストを解析し、それにあったものをpostしたい。
         """
         req = requests.get(self.message_url, headers=self.api_key)
-        json_file = req.json()
-        pprint(json_file[-1])
+        try:
+            json_file = req.json()
+        except:
+            json_file = {}
+        if json_file != {}:
+            for j in json_file:
+                self.message_analize(j["body"])
+            pprint(json_file[-1])
+        else:
+            print("ゲットできず")
     
     def get_keys(self):
         """

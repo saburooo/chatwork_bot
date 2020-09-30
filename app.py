@@ -108,7 +108,11 @@ class ChatWork:
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    pass
+    chat = ChatWork()
+    for c in chat.chat_get():
+        m = MessageAnalize(c)
+    
+    return chat.chat_post()
 
 
 if __name__ == "__main__":

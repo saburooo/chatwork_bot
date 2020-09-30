@@ -10,28 +10,59 @@ app = Flask(__name__)
 
 
 class MessageAnalize:
-    def __init__(self, json_file):
+    def __init__(self):
         """
         このままクラスが増えすぎるのもまずいと思った。
         このクラスでメッセージとその他諸々を解析する。
         """
-        self.message_id : str = json_file["message_id"]
-        self.body : str = json_file["body"]
-        self.name : str = json_file["account"]["name"]
+        #self.message_id : str = json_file["message_id"]
+        #self.body : str = json_file["body"]
+        #self.name : str = json_file["account"]["name"]
         self.q_and_a = re.compile('質問|在宅(で|も|は).*?|これは')
+        self.param = { "body" : None }
+        self.chatwork = ChatWork()
+        self.chat_list : list = self.chatwork.chat_get()
+        self.test()
+        self.greet()
+
+    def greet(self) -> dict:
+        if re.search("^おはよう|^こん(にち|ばん)[はわ]", self.chat_list[-1]["body"]):
+            self.param = {
+                "body": self.name + "さん、こんにちわ",
+            }
+            return self.param
+        else:
+            return {}
     
     def test(self):
         """
         テストするためのメソッド
         """
-        pass
+        if re.search("魔王") in self.body:
+            params = {
+                    "body":"中二病乙"
+                    }
+            return params
 
     def ngword(self):
         """
         NGワードが入っているかどうか確認する。
         """
         pass
-        
+
+    def messagegenerate(self):
+        """
+        メッセージを受け取った情報を基に生成する。
+        """
+        pass
+
+    def reply(self) -> dict:
+        """
+        結果を辞書で返す。
+        """
+        return {
+                "body": self.messagegenerate()
+                }
 
 
 class ChatWork:
@@ -80,9 +111,7 @@ class ChatWork:
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    chat = ChatWork()
-    for c in chat.chat_get():
-        m = MessageAnalize(c)
+    pass
 
 
 if __name__ == "__main__":

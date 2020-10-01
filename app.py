@@ -18,48 +18,37 @@ class MessageAnalize:
         self.message_id : str = json_file["message_id"]
         self.body : str = json_file["body"]
         self.name : str = json_file["account"]["name"]
+        self.account : str = json_file["account"]["account_id"]
         self.q_and_a = re.compile('質問|在宅(で|も|は).*?|これは')
 
     def greet(self) -> dict:
-        if re.search("^おはよう|^こん(にち|ばん)[はわ]", self.body):
-            return  self.name + "さん、こんにちは" + "あなたは" + self.message_id + "ですね",
-        else:
-            return 
+        return re.search("おはよう|こん(にち|ばん)[はわ]", self.body)
     
     def parrot(self):
         """
         オウム返し
         """
         return self.body
-    
-    def test(self):
-        """
-        テストするためのメソッド
-        """
-        if re.search("魔王", self.body ):
-            return "魔王とか中二病乙"
-        else:
-            return "普通ですな"
 
     def ngword(self):
         """
         NGワードが入っているかどうか確認する。
         """
-        pass
+        return re.search("アホ|バカ|馬鹿|阿保", self.body)
+
+    def inword(self, words):
+        return re.search(words, self.body)
 
     def messagegenerate(self):
         """
         メッセージを受け取った情報を基に生成する。
         """
-        pass
-
-    def reply(self):
-        """
-        結果を辞書で返す。
-        """
-        return {
-                "body": self.messagegenerate()
-                }
+        if self.ngword():
+            return "禁止ワードを入れるとかwww" + self.name + "君ちぃーっすwww"
+        if self.greet():
+            return '[rp aid=' + self.account + ' to=' + self.message_id + ']' + self.name + "さん、こんにちは今日もご機嫌ですね",
+        if self.inword('(なん|何)だ(きみ|君)は(.*?!)'):
+            return "なんだチミ(君)はってか!? え!? なんだチミはってか！そうです、私が変なおじさんです"
 
 
 class ChatWork:
@@ -73,8 +62,9 @@ class ChatWork:
             "body":message
         }
         req = requests.post(self.message_url, headers=self.api_key, params=params)
+        req = requests.put(self.message_url + 'read', headers=self.api_key)
     
-    def chat_get(self):
+    def chat_get(self) -> list:
         """
         json_fileで取得したのを頼りにテキストを解析し、それにあったものをpostしたい。
         """
@@ -89,7 +79,7 @@ class ChatWork:
             print("ゲットできず")
         return json_file_list
     
-    def get_keys(self):
+    def get_keys(self) -> dict:
         """
         いっそメソッドでローカルにあるjsonもしくは環境変数から必要なものを取ってく
         辞書で返します。
@@ -119,6 +109,6 @@ if __name__ == "__main__":
     chat = ChatWork()
     for c in chat.chat_get():
         m = MessageAnalize(c)
-        chat.chat_post(m.parrot())
+        chat.chat_post(m.messagegenerate())
     #app.debug=True
     #app.run()
